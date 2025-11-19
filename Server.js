@@ -24,4 +24,15 @@ app.post('/message', async (req, res) => {
   }
 
   try {
-    await pusher.trigger("Veil
+    await pusher.trigger("Veilian-CHAT-Z8", "new-message", { displayName, message });
+    console.log('[SERVER] Pusher trigger OK:', displayName, message);
+    res.status(200).send("Message sent");
+  } catch (err) {
+    console.error('[SERVER] Pusher error:', err && err.stack ? err.stack : err);
+    res.status(500).send("Pusher error");
+  }
+});
+
+const port = 5000;
+app.listen(port, () => console.log(`Veilian Chat server running on port ${port}`));
+
