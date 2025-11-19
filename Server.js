@@ -15,14 +15,13 @@ const pusher = new Pusher({
   useTLS: true
 });
 
-// Endpoint to broadcast messages
-app.post('/message', (req, res) => {
+app.post('/message', async (req, res) => {
+  console.log('[SERVER] POST /message received:', req.body);
   const { displayName, message } = req.body;
-  if (!displayName || !message) return res.status(400).send("Missing fields");
+  if (!displayName || !message) {
+    console.log('[SERVER] Missing fields in request body');
+    return res.status(400).send("Missing fields");
+  }
 
-  pusher.trigger("Veilian-CHAT-Z8", "new-message", { displayName, message });
-  res.status(200).send("Message sent");
-});
-
-app.listen(5000, () => console.log('Veilian Chat server running on port 5000'));
-
+  try {
+    await pusher.trigger("Veil
