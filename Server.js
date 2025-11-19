@@ -20,8 +20,9 @@ app.post('/message', (req, res) => {
   const { displayName, message } = req.body;
   if (!displayName || !message) return res.status(400).send("Missing fields");
 
-  pusher.trigger("veilian-chat", "new-message", { displayName, message });
+  pusher.trigger("Veilian-CHAT-Z8", "new-message", { displayName, message });
   res.status(200).send("Message sent");
 });
 
 app.listen(5000, () => console.log('Veilian Chat server running on port 5000'));
+
