@@ -1,11 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // DOM elements
   const chatMessages = document.getElementById('chatMessages');
   const chatBox = document.getElementById('chatBox');
   const chatInput = document.getElementById('chatInput');
   const displayNameInput = document.getElementById('displayName');
   const sendBtn = document.getElementById('sendBtn');
 
-  // Pusher
+  if (!chatMessages || !chatBox || !chatInput || !displayNameInput || !sendBtn) {
+    console.error('[CLIENT] Missing required DOM elements!');
+    return;
+  }
+
+  // ===== Pusher Setup =====
+  Pusher.logToConsole = true;
   const pusher = new Pusher('b7d05dcc13df522efbbc', { cluster: 'us2' });
   const channel = pusher.subscribe('Veilian-CHAT-Z8');
 
@@ -16,31 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
+  // ===== Send message =====
   function sendMessage() {
-    const name = (displayNameInput && displayNameInput.value.trim()) || 'Anon';
-    const message = chatInput && chatInput.value.trim();
+    const name = displayNameInput.value.trim() || 'Anon';
+    const message = chatInput.value.trim();
     if (!message) return;
 
-    fetch('https://veilian-chat-4-backend.onrender.com/message', { // <-- deployed backend
+    fetch('https://veilian-chat-4-backend.onrender.com/message', { // <- replace with your deployed backend URL
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ displayName: name, message })
     })
     .then(() => { chatInput.value = ''; })
-    .catch(err => console.error(err));
+    .catch(err => console.error('[CLIENT] fetch error:', err));
   }
 
-  if (sendBtn) sendBtn.addEventListener('click', sendMessage);
-  if (chatInput) chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
+  // ===== Toggle chat open/close =====
   let chatOpen = true;
-  if (chatBox) {
-    chatBox.addEventListener('dblclick', () => {
-      chatOpen = !chatOpen;
-      const inputWrapper = document.getElementById('chatInputWrapper');
-      chatMessages.style.display = chatOpen ? 'block' : 'none';
-      if (inputWrapper) inputWrapper.style.display = chatOpen ? 'flex' : 'none';
-    });
-  }
+  chatBox.addEventListener('dblclick', () => {
+    chatOpen = !chatOpen;
+    const inputWrapper = document.getElementById('chatInputWrapper');
+    chatMessages.style.display = chatOpen ? 'block' : 'none';
+    inputWrapper.style.display = chatOpen ? 'flex' : 'none';
+  });
 });
-
